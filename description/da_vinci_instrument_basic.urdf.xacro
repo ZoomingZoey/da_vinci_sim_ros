@@ -1,0 +1,176 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro"  name="da_vinci_intrument">
+
+    <xacro:include filename="materials.xacro" />
+    <xacro:include filename="inertia_matrices.xacro" />
+
+    <xacro:property name="damping_amount" value="10.0"/>
+    <xacro:property name="friction_amount" value="10.0"/>
+
+    <link name="world"></link>
+
+    <joint name="base_joint" type="fixed">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <parent link="world"/>
+        <child link="base_link"/>
+    </joint>
+
+    <link name="base_link">
+        <visual>
+            <origin xyz="0 0 0.015" rpy="0 0 0"/>
+            <geometry>
+                <box size="0.092 0.063 0.030" />
+            </geometry>
+            <material name="white"/>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0.015" rpy="0 0 0 "/>
+            <geometry>
+                <box size="0.092 0.063 0.030" />
+            </geometry>
+        </collision>
+        <xacro:inertial_box mass="${145/1000}" x="${92/1000}" y="${63/1000}" z="${30/1000}">
+            <origin xyz="0 0 ${15/1000}" rpy="0 0 0"/>
+        </xacro:inertial_box>
+    </link>
+
+    <joint name="shaft_joint" type="fixed">
+        <origin xyz="0.046 0 0.015" rpy="0 0 0"/>
+        <parent link="base_link"/>
+        <child link="shaft_link"/>
+    </joint>
+
+    <link name="shaft_link">
+        <visual>
+            <origin xyz="${(423.5/2)/1000} 0 0" rpy="0 ${pi/2} 0"/>
+            <geometry>
+                <cylinder length="${423.5/1000}" radius="${4/1000}" />
+            </geometry>
+            <material name="darkGrey"/>
+        </visual>
+        <collision>
+            <origin xyz="${(423.5/2)/1000} 0 0" rpy="0 ${pi/2} 0"/>
+            <geometry>
+                <cylinder length="${423.5/1000}" radius="${4/1000}" />
+            </geometry>
+        </collision>
+        <xacro:inertial_box mass="${8/1000}" x="${423.5/1000}" y="${8/1000}" z="${8/1000}">
+            <origin xyz="${(423.5/2)/1000} 0 0" rpy="0 0 0"/>
+        </xacro:inertial_box>
+    </link>
+
+    <joint name="shoulder_joint" type="revolute">
+        <origin xyz="${423.5/1000} 0 0" rpy="0 0 0"/>
+        <parent link="shaft_link"/>
+        <child link="shoulder_link"/>
+        <axis xyz="1 0 0"/>
+        <limit lower="${-(pi/2)}" upper="${pi/2}" velocity="100" effort="100"/>
+        <dynamics damping="${damping_amount}" friction="${friction_amount}"/>
+    </joint>
+
+    <link name="shoulder_link">
+        <visual>
+            <origin xyz="${(11/2)/1000} 0 0" rpy="0 0 0"/>
+            <geometry>
+                <box size="${11/1000} ${8/1000} ${8/1000}"/>
+            </geometry>
+            <material name="silver"/>
+        </visual>
+        <collision>
+            <origin xyz="${(11/2)/1000} 0 0" rpy="0 0 0"/>
+            <geometry>
+                <box size="${11/1000} ${8/1000} ${8/1000}"/>
+            </geometry>
+        </collision>
+        <xacro:inertial_box mass="${8/1000}" x="${(11*2)/1000}" y="${(8*2)/1000}" z="${(8*2)/1000}">
+            <origin xyz="${(11/2)/1000} 0 0" rpy="0 0 0"/>
+        </xacro:inertial_box>
+    </link>
+
+<!--     <joint name="wrist_joint" type="revolute">
+        <origin xyz="0.008354 0 0" rpy="0 0 0"/>
+        <parent link="shoulder_link"/>
+        <child link="wrist_link"/>
+        <axis xyz="0 1 0"/>
+        <limit lower="${-(pi/2)}" upper="${pi/2}" velocity="100" effort="100"/>
+        <dynamics damping="${damping_amount}" friction="${friction_amount}"/>
+    </joint>
+
+    <link name="wrist_link">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <mesh filename="file://$(find da_vinci_sim)/instrument_models/GrasperWrist.obj" scale="${model_scale} ${model_scale} ${model_scale}"/>
+            </geometry>
+            <material name="silver"/>
+        </visual>
+        <collision>
+            <origin xyz="${5.146/1000} 0 0" rpy="0 ${pi/2} 0"/>
+            <geometry>
+                <cylinder length="${3/1000}" radius="${4/1000}" />
+            </geometry>
+        </collision>
+        <xacro:inertial_cylinder mass="${8/1000}" length="${15.584/1000}" radius="${4/1000}">
+            <origin xyz="0 0 0" rpy="0 ${pi/2} 0"/>
+        </xacro:inertial_cylinder>
+    </link> -->
+
+<!--     <joint name="grasper_left_joint" type="revolute">
+        <origin xyz="0.010292 0 0" rpy="0 0 0"/>
+        <parent link="wrist_link"/>
+        <child link="grasper_left_link"/>
+        <axis xyz="0 0 1"/>
+        <limit lower="${-(pi/2)}" upper="${pi/2}" velocity="100" effort="100"/>
+        <dynamics damping="${damping_amount}" friction="${friction_amount}"/>
+    </joint>
+
+    <link name="grasper_left_link">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <mesh filename="file://$(find da_vinci_sim)/instrument_models/GrasperLeft.obj" scale="${model_scale} ${model_scale} ${model_scale}"/>
+            </geometry>
+            <material name="silver"/>
+        </visual>
+        <collision>
+            <origin xyz="${(10 + (7/2) + 1.5)/1000} ${((1.25/2)+0.25)/1000} 0" rpy="0 0 0"/>
+            <geometry>
+                <box size="${20/1000} ${1.25/1000} ${6/1000}" />
+            </geometry>
+        </collision>
+        <xacro:inertial_box mass="${4/1000}" x="${30.5/1000}" y="${7/1000}" z="${6/1000}">
+            <origin xyz="${((30.5/2)-(7/2))/1000} 0 0" rpy="0 0 0"/>
+        </xacro:inertial_box>
+    </link> -->
+
+<!--     <joint name="grasper_right_joint" type="revolute">
+        <parent link="wrist_link"/>
+        <child link="grasper_right_link"/>
+        <origin xyz="0.010292 0 0" rpy="0 0 0"/>
+        <axis xyz="0 0 1"/>
+        <limit lower="${-(pi/2)}" upper="${pi/2}" velocity="100" effort="100"/>
+        <dynamics damping="${damping_amount}" friction="${friction_amount}"/>
+    </joint>
+
+    <link name="grasper_right_link">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <mesh filename="file://$(find da_vinci_sim)/instrument_models/GrasperRight.obj" scale="${model_scale} ${model_scale} ${model_scale}"/>
+            </geometry>
+            <material name="silver"/>
+        </visual>
+        <collision>
+            <origin xyz="${(10 + (7/2) + 1.5)/1000} ${-(((1.25/2)+0.25)/1000)} 0" rpy="0 0 0"/>
+            <geometry>
+                <box size="${20/1000} ${1.25/1000} ${6/1000}" />
+            </geometry>
+        </collision>
+        <xacro:inertial_box mass="${4/1000}" x="${30.5/1000}" y="${7/1000}" z="${6/1000}">
+            <origin xyz="${((30.5/2)-(7/2))/1000} 0 0" rpy="0 0 0"/>
+        </xacro:inertial_box>
+    </link> -->
+
+    <xacro:include filename="da_vinci_gazebo.xacro" />
+
+</robot>
